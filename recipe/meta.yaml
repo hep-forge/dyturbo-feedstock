@@ -1,0 +1,48 @@
+{% set versions = {
+    "1.4.0": "c9012b8c725758582f0fa8f421b4624d3962d20180fc881b725964902676ba64"
+} %}
+
+
+{% set version = environ.get('COMMIT_VERSION', None) %}
+{% set version = version or versions.keys()|first %}
+{% set version = version|string %}
+
+package:
+  name: {{ environ.get('ANACONDA_PACKAGE', "dyturbo")|string|lower }}
+  version: {{ environ.get('ANACONDA_VERSION', version)|replace("-", ".") }}
+
+source:
+  url: "https://dyturbo.hepforge.org/downloads/dyturbo-{{ version }}.tar.gz"
+  {% if versions.get(version, None) %}
+  sha256: {{ versions.get(version) }}
+  {% endif %}
+
+requirements:
+  build:
+    - {{ compiler('gfortran') }}
+    - {{ compiler('cxx') }}
+    - {{ compiler('c') }}
+
+    - make
+
+  host:
+    - lhapdf
+    - hellx
+    - hell
+    - cubature
+    - cuba
+
+  run:
+    - lhapdf
+    - cuba
+
+about:
+  home: "https://dyturbo.hepforge.org"
+  license: "GPL-3.0"
+  summary: "DYTurbo: Fast predictions for Drell-Yan processes including qt-resummation"
+  description: |
+    DYTurbo is a program for the calculation of the QCD transverse-momentum resummation of Drell–Yan cross sections up to approximate netx-to-next-to-next-to-next-to-leading (N4LLa) logarithmic accuracy, including the full kinematical dependence of the decaying lepton pair with the corresponding spin correlations and the finite-width effects.
+
+extra:
+  recipe-maintainers:
+    - meiyasan
