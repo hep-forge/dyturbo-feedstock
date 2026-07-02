@@ -9,5 +9,6 @@ done
 
 ./configure --enable-Ofast --prefix=$PREFIX
 
-make -j$(nproc)
+NPROC=$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+make -j$NPROC
 make install
