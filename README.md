@@ -16,7 +16,7 @@ DYTurbo: Fast predictions for Drell-Yan processes including qt-resummation
 | Architecture | Latest published |
 |--------------|------------------|
 | linux-amd64 (`linux-64`) | ✅ `1.4.2` |
-| linux-arm64 (`linux-aarch64`) | ❌ not published |
+| linux-arm64 (`linux-aarch64`) | ✅ `1.4.2` |
 
 _As of the last feedstock render; the badges above are live._
 
