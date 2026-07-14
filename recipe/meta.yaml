@@ -26,6 +26,7 @@ requirements:
 
     - make
     - gnuconfig
+    - sed        # build.sh's `sed -i` needs GNU semantics; BSD sed on macOS differs
 
   host:
     - lhapdf
