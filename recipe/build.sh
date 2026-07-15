@@ -16,6 +16,14 @@ done
 # doesn't exist, so a full autoreconf fails on this release).
 sed -i 's/^dyturbo_LDFLAGS = -static.*/dyturbo_LDFLAGS =/' src/Makefile.am src/Makefile.in
 
+# configure auto-fetches and builds its own bundled Cuba copy (separate
+# from the `cuba` host dependency above) if it doesn't like what it
+# finds; that vendored copy has the exact same stddecl.h
+# `typedef enum { false, true } bool;` C23-reserved-keyword break as the
+# standalone cuba-feedstock (see its build.sh) -- pin -std=gnu99 here
+# too so the bundled sub-build compiles under any compiler's default.
+export CFLAGS="${CFLAGS} -std=gnu99"
+
 ./configure --enable-Ofast --prefix=$PREFIX
 
 NPROC=$(nproc 2>/dev/null || sysctl -n hw.ncpu)
