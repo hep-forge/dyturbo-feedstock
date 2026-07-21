@@ -16,13 +16,19 @@ done
 # doesn't exist, so a full autoreconf fails on this release).
 sed -i 's/^dyturbo_LDFLAGS = -static.*/dyturbo_LDFLAGS =/' src/Makefile.am src/Makefile.in
 
-# configure auto-fetches and builds its own bundled Cuba copy (separate
-# from the `cuba` host dependency above) if it doesn't like what it
-# finds; that vendored copy has the exact same stddecl.h
+# configure.ac's AC_SEARCH_LIBS([vegas],[cuba]) always misses the `cuba`
+# host dependency above -- Cuba's stddecl.h SUFFIX macro exports the
+# symbol as `vegas_` (Fortran underscore convention) by default, not the
+# bare `vegas` autoconf probes for -- so configure always falls through
+# to install-cuba, which downloads and builds its own bundled Cuba copy.
+# That vendored copy has the exact same stddecl.h
 # `typedef enum { false, true } bool;` C23-reserved-keyword break as the
-# standalone cuba-feedstock (see its build.sh) -- pin -std=gnu99 here
-# too so the bundled sub-build compiles under any compiler's default.
-export CFLAGS="${CFLAGS} -std=gnu99"
+# standalone cuba-feedstock (see its build.sh). Exporting CFLAGS here
+# doesn't help: install-cuba does `export CFLAGS="-fPIC -fcommon"` --
+# an unconditional overwrite, not an append -- which clobbers whatever
+# we set before ever reaching Cuba's own ./configure. Patch that
+# hardcoded line directly instead.
+sed -i 's/^export CFLAGS="-fPIC -fcommon"$/export CFLAGS="-fPIC -fcommon -std=gnu99"/' install-cuba
 
 ./configure --enable-Ofast --prefix=$PREFIX
 
