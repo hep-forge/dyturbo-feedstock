@@ -16,6 +16,18 @@ done
 # doesn't exist, so a full autoreconf fails on this release).
 sed -i 's/^dyturbo_LDFLAGS = -static.*/dyturbo_LDFLAGS =/' src/Makefile.am src/Makefile.in
 
+# counterterm/ctint.C zero-initializes two arrays sized by mesq::totpch, a
+# run-time value: a GCC extension clang rejects ("variable-sized object may
+# not be initialized"). Declare them, then zero them.
+if [[ "$(uname)" == "Darwin" ]]; then
+  for a in sig11_qed sig12_qed; do
+    sed -i "s/double ${a}\[mesq::totpch\] = {0\.};/double ${a}[mesq::totpch]; for (int k = 0; k < mesq::totpch; k++) ${a}[k] = 0.;/" counterterm/ctint.C
+  done
+  if grep -q '_qed\[mesq::totpch\] = {0\.}' counterterm/ctint.C; then
+    echo 'ctint.C: initializer not replaced' >&2; exit 1
+  fi
+fi
+
 # configure.ac's AC_SEARCH_LIBS([vegas],[cuba]) always misses the `cuba`
 # host dependency above -- Cuba's stddecl.h SUFFIX macro exports the
 # symbol as `vegas_` (Fortran underscore convention) by default, not the
